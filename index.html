@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>КингсБридж — Эдвардианский Мир</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1a1512;
+    --paper:#e9dfc7;
+    --paper-dark:#ddcfab;
+    --green:#1c2b22;
+    --green-deep:#132018;
+    --wine:#5c1f2b;
+    --brass:#b8935a;
+    --brass-light:#d4b483;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:var(--green);
+    color:var(--paper);
+    font-family:'Cormorant Garamond', serif;
+    overflow-x:hidden;
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path d="M27 3 L29 5 L12 22 L7 24 L9 19 Z" fill="%23d4b483" stroke="%231a1512" stroke-width="1"/><path d="M9 19 L7 24 L12 22 Z" fill="%235c1f2b" stroke="%231a1512" stroke-width="1"/></svg>') 4 28, auto;
+  }
+
+  a, button{
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path d="M27 3 L29 5 L12 22 L7 24 L9 19 Z" fill="%23d4b483" stroke="%231a1512" stroke-width="1"/><path d="M9 19 L7 24 L12 22 Z" fill="%235c1f2b" stroke="%231a1512" stroke-width="1"/></svg>') 4 28, pointer;
+  }
+
+  /* ====== Виньетка и текстура фона ====== */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background:
+      radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%);
+    pointer-events:none;
+    z-index:5;
+  }
+
+  body::after{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, transparent 1px, transparent 2px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,0.02) 0px, transparent 1px, transparent 3px);
+    pointer-events:none;
+    z-index:4;
+    opacity:0.6;
+  }
+
+  /* ====== Верхняя панель: аудио ====== */
+  .audio-bar{
+    position:fixed; top:0; left:0; right:0;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:18px 36px;
+    z-index:50;
+    font-family:'Cormorant Garamond', serif;
+    letter-spacing:0.05em;
+    mix-blend-mode:normal;
+  }
+
+  .brand-mark{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size:0.95rem;
+    letter-spacing:0.18em;
+    color:var(--brass-light);
+    text-transform:uppercase;
+    opacity:0;
+    animation: fadeIn 1.5s ease forwards 2.5s;
+  }
+
+  .gramophone-toggle{
+    display:flex; align-items:center; gap:10px;
+    background:transparent;
+    border:1px solid rgba(212,180,131,0.4);
+    color:var(--brass-light);
+    padding:8px 16px;
+    font-family:'Cormorant Garamond', serif;
+    font-size:0.85rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    border-radius:2px;
+    transition:all 0.3s ease;
+    opacity:0;
+    animation: fadeIn 1.5s ease forwards 2.5s;
+  }
+  .gramophone-toggle:hover{
+    background:rgba(212,180,131,0.1);
+    border-color:var(--brass-light);
+  }
+  .gramophone-toggle .disc{
+    width:14px; height:14px;
+    border-radius:50%;
+    border:1.5px solid var(--brass-light);
+    position:relative;
+    flex-shrink:0;
+  }
+  .gramophone-toggle .disc::after{
+    content:"";
+    position:absolute; top:50%; left:50%;
+    width:3px; height:3px;
+    background:var(--brass-light);
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+  }
+  .gramophone-toggle.playing .disc{
+    animation: spin 3s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  /* ====== Hero: печатная машинка ====== */
+  .hero{
+    min-height:100vh;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    position:relative;
+    padding:120px 20px 60px;
+    z-index:10;
+  }
+
+  .machine-scene{
+    display:flex; flex-direction:column; align-items:center;
+    width:100%; max-width:720px;
+  }
+
+  /* Лист бумаги */
+  .paper-sheet{
+    background:var(--paper);
+    color:var(--ink);
+    width:100%;
+    max-width:640px;
+    min-height:340px;
+    padding:52px 56px 60px;
+    position:relative;
+    box-shadow:
+      0 2px 0 var(--paper-dark),
+      0 18px 45px rgba(0,0,0,0.55),
+      0 3px 10px rgba(0,0,0,0.3);
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(92,31,43,0.03), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(28,43,34,0.04), transparent 40%);
+    transform: rotate(-0.4deg);
+  }
+
+  .paper-sheet::before{
+    /* рваный верхний край листа */
+    content:"";
+    position:absolute; top:-1px; left:0; right:0; height:6px;
+    background:
+      linear-gradient(115deg, transparent 48%, var(--green) 48%, var(--green) 52%, transparent 52%) 0 0/14px 12px repeat-x;
+    opacity:0.0;
+  }
+
+  .paper-title{
+    font-family:'Playfair Display', serif;
+    font-weight:900;
+    font-size:clamp(2.6rem, 7vw, 4.2rem);
+    letter-spacing:0.02em;
+    white-space:nowrap;
+    display:inline-block;
+    position:relative;
+  }
+
+  .paper-title .letter{
+    display:inline-block;
+    opacity:0;
+  }
+  .paper-title .letter.struck{
+    opacity:1;
+  }
+
+  /* Молоточек литеры, бьющий по бумаге сверху */
+  .type-hammer{
+    position:absolute;
+    top:-70px;
+    width:0;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    pointer-events:none;
+    z-index:20;
+  }
+  .type-hammer .arm{
+    width:3px;
+    height:46px;
+    background:linear-gradient(180deg, #3a2c22, #6b5138);
+    border-radius:1px;
+  }
+  .type-hammer .head{
+    width:13px; height:13px;
+    background:radial-gradient(circle at 35% 30%, #8a6a45, #2a1f18);
+    border-radius:2px;
+    margin-top:-2px;
+    box-shadow:0 0 3px rgba(0,0,0,0.5);
+  }
+
+  .paper-subtitle{
+    font-family:'Playfair Display', serif;
+    font-style:italic;
+    font-size:1.05rem;
+    color:var(--wine);
+    margin-top:10px;
+    opacity:0;
+    letter-spacing:0.04em;
+  }
+
+  .paper-divider{
+    width:60px; height:2px;
+    background:var(--wine);
+    margin:22px 0 22px;
+    opacity:0;
+  }
+
+  .paper-body{
+    font-size:1.18rem;
+    line-height:1.75;
+    max-width:52ch;
+  }
+
+  .paper-body p{
+    margin-bottom:1.1em;
+    opacity:0;
+  }
+
+  /* Тело машинки под листом (намёк, минимализм) */
+  .machine-base{
+    width:92%;
+    max-width:600px;
+    height:26px;
+    background:linear-gradient(180deg, #2a1f18, #150f0b);
+    border-radius:3px 3px 10px 10px;
+    margin-top:-6px;
+    box-shadow:0 10px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+    position:relative;
+    z-index:-1;
+  }
+  .machine-base::before{
+    content:"";
+    position:absolute; left:50%; top:-10px;
+    transform:translateX(-50%);
+    width:70%; height:14px;
+    background:linear-gradient(180deg, #3a2c22, #1c130e);
+    border-radius:3px;
+  }
+
+  .scroll-hint{
+    margin-top:52px;
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    letter-spacing:0.12em;
+    color:var(--brass-light);
+    font-size:0.95rem;
+    opacity:0;
+    animation: fadeIn 1.2s ease forwards;
+    text-align:center;
+  }
+  .scroll-hint::after{
+    content:"⌄";
+    display:block;
+    font-size:1.3rem;
+    margin-top:6px;
+    animation: bob 2s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(6px); }
+  }
+
+  @keyframes fadeIn{
+    to{ opacity:1; }
+  }
+
+  /* ====== Секции ниже ====== */
+  .content-section{
+    max-width:900px;
+    margin:0 auto;
+    padding:90px 30px;
+    position:relative;
+    z-index:10;
+  }
+
+  .section-eyebrow{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    color:var(--brass-light);
+    letter-spacing:0.15em;
+    font-size:0.95rem;
+    margin-bottom:14px;
+  }
+
+  .section-title{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size:clamp(1.8rem, 4vw, 2.6rem);
+    margin-bottom:28px;
+    color:var(--paper);
+  }
+
+  .rule{
+    width:100%; height:1px;
+    background:linear-gradient(90deg, transparent, var(--brass), transparent);
+    margin:70px 0;
+  }
+
+  .feature-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+    gap:36px;
+    margin-top:20px;
+  }
+
+  .feature-card{
+    border:1px solid rgba(184,147,90,0.3);
+    padding:28px 24px;
+    background:rgba(0,0,0,0.15);
+    position:relative;
+  }
+
+  .feature-card h3{
+    font-family:'Playfair Display', serif;
+    font-size:1.2rem;
+    color:var(--brass-light);
+    margin-bottom:10px;
+    font-weight:600;
+  }
+
+  .feature-card p{
+    font-size:1.05rem;
+    line-height:1.6;
+    color:rgba(233,223,199,0.85);
+  }
+
+  footer{
+    text-align:center;
+    padding:50px 20px 70px;
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    color:rgba(233,223,199,0.5);
+    font-size:0.95rem;
+    position:relative;
+    z-index:10;
+  }
+
+  @media (max-width: 600px){
+    .paper-sheet{ padding:36px 26px 44px; }
+    .paper-title{ font-size:2.1rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; }
+    .paper-title{ width:11.05ch; border-right:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="audio-bar">
+  <div class="brand-mark">Сервер «КингсБридж» · MMXXVI</div>
+  <button class="gramophone-toggle" id="audioToggle" aria-label="Включить музыку">
+    <span class="disc"></span>
+    <span id="audioLabel">Граммофон</span>
+  </button>
+</div>
+
+<!-- 
+  МЕСТО ПОД АУДИО:
+  Вставь ссылку на mp3/файл ниже вместо SRC_HERE.
+  Рекомендация по духу эпохи (1901–1914): регтайм, салонный вальс, 
+  граммофонная запись с лёгким потрескиванием винила — 
+  джаз в чистом виде — это уже 1920-е, но если атмосфера важнее строгой 
+  историчности, подойдёт и тёплый винтажный джаз/свинг.
+-->
+<audio id="bgAudio" loop preload="none">
+  <source src="SRC_HERE.mp3" type="audio/mpeg">
+</audio>
+
+<section class="hero">
+  <div class="machine-scene">
+    <div class="paper-sheet" id="paperSheet">
+      <h1 class="paper-title" id="titleText"></h1>
+      <div class="paper-subtitle" id="subtitle">Город на воде, врата в новый век</div>
+      <div class="paper-divider" id="divider"></div>
+      <div class="paper-body" id="bodyText">
+        <p id="p1"></p>
+        <p id="p2"></p>
+      </div>
+    </div>
+    <div class="machine-base"></div>
+  </div>
+  <div class="scroll-hint">пролистайте далее</div>
+</section>
+
+<section class="content-section">
+  <div class="section-eyebrow">Хроники сервера</div>
+  <h2 class="section-title">Что вас ждёт в КингсБридже</h2>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h3>Паровая механика</h3>
+      <p>Фабрики, локомотивы и первые автоматоны — индустрия эпохи в игровом мире.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Сословия и титулы</h3>
+      <p>От портового рабочего до пэра королевства — путь наверх открыт каждому.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Биржа и фунт стерлингов</h3>
+      <p>Собственная экономика с банками, займами и колебаниями рынка.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Сезонные торжества</h3>
+      <p>Балы, промышленные выставки и коронационные празднества по календарю сервера.</p>
+    </div>
+  </div>
+</section>
+
+<div class="rule"></div>
+
+<footer>
+  Двери КингсБриджа открываются со дня на день · следите за граммофоном
+</footer>
+
+<script>
+  // Печать абзацев с эффектом машинки и треском между абзацами
+  const paragraphs = [
+    { id: 'p1', text: 'Основан в 1901 году на слиянии двух рек, Кингсбридж стал портом, куда стекались уголь, идеи и амбиции целой эпохи.' },
+    { id: 'p2', text: 'Приглашаем вас стать частью его истории — рабочим, торговцем или лордом. Выбор определит ваш путь.' }
+  ];
+
+  // Создаём молоточек один раз и переиспользуем
+  const hammer = document.createElement('div');
+  hammer.className = 'type-hammer';
+  hammer.innerHTML = '<div class="arm"></div><div class="head"></div>';
+  document.body.appendChild(hammer);
+
+  function strikeAt(targetEl){
+    // Позиционируем молоточек над буквой (в координатах страницы)
+    const rect = targetEl.getBoundingClientRect();
+    const x = rect.left + rect.width/2 + window.scrollX;
+    hammer.style.left = x + 'px';
+    hammer.style.transform = 'translateX(-50%) translateY(-40px)';
+    hammer.style.transition = 'none';
+    hammer.style.opacity = 1;
+
+    // форсируем reflow, затем бьём вниз
+    void hammer.offsetHeight;
+    hammer.style.transition = 'transform 0.09s cubic-bezier(.3,0,.7,1)';
+    hammer.style.transform = 'translateX(-50%) translateY(0px)';
+
+    setTimeout(() => {
+      // момент удара — проявляем букву
+      targetEl.classList.add('struck');
+      // лёгкая тряска листа при ударе
+      microShake();
+
+      // молоточек улетает обратно вверх
+      hammer.style.transition = 'transform 0.14s ease-in';
+      hammer.style.transform = 'translateX(-50%) translateY(-40px)';
+      setTimeout(() => { hammer.style.opacity = 0; }, 140);
+    }, 90);
+  }
+
+  function microShake(){
+    const paper = document.getElementById('paperSheet');
+    paper.style.transition = 'transform 0.04s';
+    paper.style.transform = 'translateX(1px) rotate(-0.4deg)';
+    setTimeout(() => { paper.style.transform = 'rotate(-0.4deg)'; }, 45);
+  }
+
+  function typeTitleWithHammer(el, text, speed, onDone){
+    // разбиваем на буквы-спаны заранее
+    const letters = [];
+    for(const ch of text){
+      const span = document.createElement('span');
+      span.className = 'letter';
+      span.textContent = ch;
+      el.appendChild(span);
+      letters.push(span);
+    }
+    let i = 0;
+    function step(){
+      if(i < letters.length){
+        strikeAt(letters[i]);
+        i++;
+        setTimeout(step, speed);
+      } else if(onDone){
+        onDone();
+      }
+    }
+    step();
+  }
+
+  function typeParagraph(el, text, speed, onDone){
+    el.style.opacity = 1;
+    let i = 0;
+    function step(){
+      if(i < text.length){
+        el.textContent = text.slice(0, i+1);
+        i++;
+        setTimeout(step, speed + (Math.random()*20 - 10));
+      } else if(onDone){
+        onDone();
+      }
+    }
+    step();
+  }
+
+  function playTypewriterClack(){
+    // короткий "треск" между абзацами — визуальная тряска листа + звук через WebAudio (без файла)
+    const paper = document.getElementById('paperSheet');
+    paper.style.transition = 'transform 0.05s';
+    let shakes = 0;
+    const shakeInterval = setInterval(() => {
+      const angle = (Math.random() * 1.6 - 0.8).toFixed(2);
+      const x = (Math.random() * 4 - 2).toFixed(1);
+      paper.style.transform = `translateX(${x}px) rotate(${angle}deg)`;
+      shakes++;
+      if(shakes > 6){
+        clearInterval(shakeInterval);
+        paper.style.transform = 'rotate(-0.4deg)';
+      }
+    }, 40);
+
+    // лёгкий "треск" через синтез шума (не требует аудиофайла)
+    try{
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const bufferSize = ctx.sampleRate * 0.15;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for(let i=0;i<bufferSize;i++){
+        data[i] = (Math.random()*2-1) * Math.exp(-i/bufferSize*8);
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      const gain = ctx.createGain();
+      gain.gain.value = 0.06;
+      noise.connect(gain).connect(ctx.destination);
+      noise.start();
+    }catch(e){ /* тихо игнорируем, если AudioContext недоступен */ }
+  }
+
+  window.addEventListener('load', () => {
+    const subtitle = document.getElementById('subtitle');
+    const divider = document.getElementById('divider');
+    const titleEl = document.getElementById('titleText');
+
+    setTimeout(() => {
+      typeTitleWithHammer(titleEl, 'КингсБридж', 95, () => {
+
+        setTimeout(() => {
+          subtitle.style.transition = 'opacity 0.8s ease';
+          subtitle.style.opacity = 1;
+        }, 300);
+
+        setTimeout(() => {
+          divider.style.transition = 'opacity 0.6s ease';
+          divider.style.opacity = 1;
+        }, 900);
+
+        setTimeout(() => {
+          playTypewriterClack();
+          typeParagraph(document.getElementById('p1'), paragraphs[0].text, 26, () => {
+            setTimeout(() => {
+              playTypewriterClack();
+              typeParagraph(document.getElementById('p2'), paragraphs[1].text, 26);
+            }, 500);
+          });
+        }, 1400);
+
+      });
+    }, 500);
+  });
+
+  // Аудио-переключатель (граммофон)
+  const audio = document.getElementById('bgAudio');
+  const toggle = document.getElementById('audioToggle');
+  const label = document.getElementById('audioLabel');
+  let playing = false;
+
+  toggle.addEventListener('click', () => {
+    if(!playing){
+      audio.play().catch(() => {
+        label.textContent = 'Добавьте файл';
+      });
+      toggle.classList.add('playing');
+      label.textContent = 'Играет';
+      playing = true;
+    } else {
+      audio.pause();
+      toggle.classList.remove('playing');
+      label.textContent = 'Граммофон';
+      playing = false;
+    }
+  });
+</script>
+
+</body>
+</html>
